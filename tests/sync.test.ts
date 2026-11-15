@@ -1,11 +1,13 @@
+import {PostgresSyncStore} from '../src/modules/sync/adapters/postgres/sync-store.js';
+import {sha256} from '../src/shared/adapters/crypto/sha256.js';
 import {after, before, test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';
-import type {Database,Row} from '../src/database.js';
+import type {Database,Row} from '../src/shared/adapters/postgres/database.js';
 import {createHandler} from '../src/worker.js';
-import {ApiError} from '../src/errors.js';
-import {canonical,validateDocument,MAX_BODY,type WorkDocument} from '../src/document.js';
+import {ApiError} from '../src/adapters/http/api-error.js';
+import {canonical,validateDocument,MAX_BODY,type WorkDocument} from '../src/modules/sync/domain/work-document.js';
 
 const pg=new PGlite();
 function adapt(client:Pick<PGlite,'query'>):Database {
@@ -14,7 +16,7 @@ function adapt(client:Pick<PGlite,'query'>):Database {
 }
 const handler=createHandler({auth:async request=>{
   const auth=request.headers.get('authorization');if(auth!=='Bearer alice'&&auth!=='Bearer bob')throw new ApiError(401,'invalid_token','Inicia sesión.');return auth.slice(7);
-},database:()=>({database:adapt(pg),close:async()=>{}})});
+},repository:()=>({store:new PostgresSyncStore(adapt(pg)),close:async()=>{}}),fingerprint:sha256});
 const env={FIREBASE_PROJECT_ID:'test-project'};const ctx={waitUntil:(_:Promise<unknown>)=>{}};
 let serial=1;const guid=()=> (serial++).toString(16).padStart(32,'0');
 export function fixture(workId=guid()):WorkDocument {

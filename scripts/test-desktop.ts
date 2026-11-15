@@ -1,3 +1,5 @@
+import {PostgresSyncStore} from '../src/modules/sync/adapters/postgres/sync-store.js';
+import {sha256} from '../src/shared/adapters/crypto/sha256.js';
 // Local integration harness only. Production worker always uses Firebase verification.
 import {createServer} from 'node:http';
 import {access,readFile,mkdtemp} from 'node:fs/promises';
@@ -5,14 +7,14 @@ import {resolve,join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {spawn} from 'node:child_process';
 import {PGlite} from '@electric-sql/pglite';
-import type {Database,Row} from '../src/database.js';
+import type {Database,Row} from '../src/shared/adapters/postgres/database.js';
 import {createHandler} from '../src/worker.js';
-import {ApiError} from '../src/errors.js';
+import {ApiError} from '../src/adapters/http/api-error.js';
 const executable=resolve(process.env.TRAZAL_DESKTOP_TEST_EXE??'../Trazal_Desktop/build/output/Release/tests/Trazal.Tests.exe');
 try { await access(executable); } catch { throw new Error('Compila Trazal-app y define TRAZAL_DESKTOP_TEST_EXE con la ruta a Trazal.Tests.exe.'); }
 const pg=new PGlite();await pg.exec(await readFile(new URL('../migrations/001_sync.sql',import.meta.url),'utf8'));
 function adapt(client:Pick<PGlite,'query'>):Database{return {query:async<T extends Row>(sql:string,params:unknown[]=[]) => (await client.query<T>(sql,params)).rows,transaction:fn=>pg.transaction(tx=>fn(adapt(tx))) };}
-const handler=createHandler({auth:async req=>{if(req.headers.get('authorization')!=='Bearer integration-test')throw new ApiError(401,'invalid_token','Sesión inválida.');return 'integration-user';},database:()=>({database:adapt(pg),close:async()=>{}})});
+const handler=createHandler({auth:async req=>{if(req.headers.get('authorization')!=='Bearer integration-test')throw new ApiError(401,'invalid_token','Sesión inválida.');return 'integration-user';},repository:()=>({store:new PostgresSyncStore(adapt(pg)),close:async()=>{}}),fingerprint:sha256});
 const server=createServer(async(req,res)=>{
   try{
     const chunks:Buffer[]=[];for await(const chunk of req)chunks.push(Buffer.from(chunk));const body=Buffer.concat(chunks);

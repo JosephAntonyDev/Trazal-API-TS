@@ -1,5 +1,5 @@
 import {readFile} from 'node:fs/promises';
-import {connect} from '../src/database.js';
+import {connect} from '../src/shared/adapters/postgres/database.js';
 const url=process.env.DATABASE_URL;
 if(!url)throw new Error('Define DATABASE_URL en el entorno; no escribas credenciales en el repositorio.');
 const connection=connect(url);

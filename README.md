@@ -1,10 +1,12 @@
-# Trazal-API-TS · 0.5.0
+# Trazal-API-TS · 0.6.0
 
 Backend TypeScript para Cloudflare Workers. PostgreSQL conserva documentos JSONB de obra con revisiones; SQLite sigue siendo la base de trabajo del escritorio. No requiere un servidor Node permanente. Este repositorio contiene la API independiente; el cliente C# / SQLite está en [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app). No se ha desplegado ni conectado a cuentas reales.
 
 ## Qué funciona
 
-- Verificación de Firebase ID tokens mediante RS256, claves públicas oficiales con caché, issuer, audience, expiración, issued-at, auth_time y UID. No acepta custom tokens ni tiene modo anónimo de escritura.
+Arquitectura hexagonal por módulos de identidad y sincronización: [estructura y puertos](docs/ARCHITECTURE.md). HTTP, Firebase, PostgreSQL y SHA-256 son adaptadores; las reglas y casos de uso no dependen de esos proveedores.
+
+- Verificación de Firebase ID tokens mediante RS256, claves públicas oficiales con caché, issuer, audience, expiración, issued-at, auth_time, UID y correo confirmado. No acepta custom tokens ni tiene modo anónimo de escritura.
 - Aislamiento por UID autenticado en cada consulta. El cliente no elige un propietario ni envía cadenas SQL.
 - Subida y descarga de obras completas, línea base, avances y gastos; cantidades e importes viajan como cadenas decimales. La validación utiliza enteros escalados, no aritmética binaria para comparar cantidades.
 - Revisión optimista: `If-Match` debe coincidir con la obra del servidor. Dos equipos no se sobrescriben silenciosamente. Una solicitud repetida con la misma clave y contenido conserva el resultado; una clave reutilizada con otro contenido se rechaza.
@@ -57,7 +59,7 @@ Arranca un servidor de pruebas exclusivamente en `127.0.0.1`, crea PostgreSQL ef
 Son campos que se **añaden** al archivo copiado, conservando `main`, flags y cron. El ID del proyecto es público; la contraseña de PostgreSQL se guarda en Hyperdrive. `DATABASE_URL` es el fallback local, no debe ponerse en `vars` de producción. El escritorio no necesita CORS; añadir `ALLOWED_ORIGINS` solo para orígenes web concretos si se habilita un cliente web.
 
 5. Iniciar sesión en Wrangler y ejecutar `npm run deploy` después de revisar el destino. Verificar `/health`, sesión Firebase real, PostgreSQL y límites de CPU antes de habilitar a un usuario.
-6. Conectar el inicio de sesión del escritorio a Firebase, incluyendo renovación y protección de credenciales con Windows DPAPI. `CloudClient` recibe un proveedor de ID tokens en memoria; el constructor no guarda tokens. `ShellViewModel.ConfigureSync(...)` activa el botón únicamente después de integrar la sesión. **El login de escritorio todavía no está implementado.**
+6. Configurar `apiKey`, `projectId` y `apiOrigin` en el cliente Trazal-app 0.6.0. El módulo de identidad de escritorio ya implementa login/registro/recuperación, renovación y persistencia opcional mediante Windows DPAPI; falta validarlo con el proyecto real. `CloudClient` recibe ID tokens en memoria. El Worker rechaza un correo sin confirmar con `403 email_unverified`. Registro y contraseñas van directamente a Firebase, nunca a esta API.
 
 Para la verificación básica de ID tokens el Worker usa claves públicas, no necesita un JSON de cuenta de servicio. Todavía no se consulta revocación individual de Firebase: un token firmado es válido hasta expirar. `accounts.disabled` permite bloquear la sincronización de una cuenta de inmediato; la administración de ese campo es externa por ahora.
 

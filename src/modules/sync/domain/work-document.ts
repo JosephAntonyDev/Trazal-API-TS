@@ -1,4 +1,4 @@
-import { ApiError, invalid } from './errors.js';
+import { ApplicationError, invalid } from '../../../shared/domain/application-error.js';
 
 export interface WorkDocument {
   schemaVersion: 1;
@@ -82,9 +82,9 @@ function unchanged<T>(old:T[],next:T[],key:(item:T)=>string,exact:boolean) {
   return [...keyed(old,key)].every(([k,v])=>right.get(k)===v);
 }
 export function validateTransition(old: WorkDocument, next: WorkDocument) {
-  if(old.work.createdAt!==next.work.createdAt) throw new ApiError(409,'immutable_creation','La fecha de creación no se modifica.');
+  if(old.work.createdAt!==next.work.createdAt) throw new ApplicationError('immutable_creation','La fecha de creación no se modifica.');
   if(old.frozen && (!next.frozen || !unchanged(old.concepts,next.concepts,c=>c.id,true) || !unchanged(old.plan,next.plan,p=>p.conceptId+p.date,true)))
-    throw new ApiError(409,'immutable_baseline','La línea base fijada no puede reemplazarse.');
-  if(!unchanged(old.progress,next.progress,p=>p.id,false))throw new ApiError(409,'immutable_progress','Los cortes existentes requieren un flujo de corrección con historial.');
-  const expenses=new Set(next.expenses.map(e=>e.id));if(old.expenses.some(e=>!expenses.has(e.id)))throw new ApiError(409,'expense_deletion','La eliminación de gastos no está habilitada.');
+    throw new ApplicationError('immutable_baseline','La línea base fijada no puede reemplazarse.');
+  if(!unchanged(old.progress,next.progress,p=>p.id,false))throw new ApplicationError('immutable_progress','Los cortes existentes requieren un flujo de corrección con historial.');
+  const expenses=new Set(next.expenses.map(e=>e.id));if(old.expenses.some(e=>!expenses.has(e.id)))throw new ApplicationError('expense_deletion','La eliminación de gastos no está habilitada.');
 }
