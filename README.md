@@ -42,12 +42,18 @@ Arranca un servidor de pruebas exclusivamente en `127.0.0.1`, crea PostgreSQL ef
 
 `npm run dev` arranca el Worker local. `/health` funciona sin configuración; las rutas privadas responden 503 mientras falte Firebase/PostgreSQL. Para una conexión real local, copia `.env.example` a `.dev.vars` y configura un PostgreSQL de desarrollo y el proyecto Firebase. La URL de la base y los tokens nunca se guardan en Git.
 
-## Despliegue pendiente
+## Despliegue automático desde GitHub
+
+Sigue la [guía paso a paso de Cloudflare, PostgreSQL y GitHub](docs/CLOUDFLARE-GITHUB.md). Conecta `JosephAntonyDev/Trazal-API-TS`, rama `main`, Worker `trazal-api`, raíz `/`, build `npm run check` y deploy `npm run deploy`. En las variables del **build** configura `HYPERDRIVE_ID`, `FIREBASE_PROJECT_ID=trazal-773ba` y `NODE_VERSION=24`. Desactiva previews de otras ramas durante el piloto.
+
+El deploy genera la configuración de producción desde esos valores; ya no depende de un archivo local no versionado. Las comprobaciones no usan una base real. Las migraciones siguen siendo un paso administrativo separado.
+
+### Preparación de infraestructura
 
 1. Crear PostgreSQL en el proveedor elegido, con TLS. El plan de Workers no incluye alojamiento PostgreSQL. Separar el usuario de migraciones del usuario de ejecución; este último solo necesita SELECT/INSERT/UPDATE/DELETE sobre `accounts`, `works`, `sync_requests` y acceso al esquema. No exponer la base directamente al escritorio.
 2. Con `DATABASE_URL` en el entorno del equipo administrador, ejecutar `npm run migrate`. La migración usa transacción y bloqueo; no borra tablas y solo se aplica una vez. No correr migraciones desde peticiones HTTP.
 3. Crear Hyperdrive apuntando a esa base con **query caching desactivado** para lecturas de sincronización consistentes. No hace falta contratar Durable Objects, KV ni R2 para este alcance.
-4. Copiar `wrangler.jsonc` a `wrangler.production.jsonc` (ignorado por Git). Configurar `workers_dev: true` o una ruta propia y añadir:
+4. `npm run prepare:deploy` genera `wrangler.production.jsonc` (ignorado por Git) a partir de `wrangler.jsonc` y las variables de build. Activa `workers_dev: true`, desactiva URLs de preview y añade:
 
 ```json
 {
@@ -56,7 +62,7 @@ Arranca un servidor de pruebas exclusivamente en `127.0.0.1`, crea PostgreSQL ef
 }
 ```
 
-Son campos que se **añaden** al archivo copiado, conservando `main`, flags y cron. El ID del proyecto es público; la contraseña de PostgreSQL se guarda en Hyperdrive. `DATABASE_URL` es el fallback local, no debe ponerse en `vars` de producción. El escritorio no necesita CORS; añadir `ALLOWED_ORIGINS` solo para orígenes web concretos si se habilita un cliente web.
+La generación conserva `main`, flags y cron. El ID del proyecto es público; la contraseña de PostgreSQL se guarda en Hyperdrive. `DATABASE_URL` es el fallback local, no debe ponerse en `vars` de producción. El escritorio no necesita CORS; al habilitar un cliente web será necesario extender la configuración con orígenes concretos.
 
 5. Iniciar sesión en Wrangler y ejecutar `npm run deploy` después de revisar el destino. Verificar `/health`, sesión Firebase real, PostgreSQL y límites de CPU antes de habilitar a un usuario.
 6. Configurar `apiKey`, `projectId` y `apiOrigin` en el cliente Trazal-app 0.6.0. El módulo de identidad de escritorio ya implementa login/registro/recuperación, renovación y persistencia opcional mediante Windows DPAPI; falta validarlo con el proyecto real. `CloudClient` recibe ID tokens en memoria. El Worker rechaza un correo sin confirmar con `403 email_unverified`. Registro y contraseñas van directamente a Firebase, nunca a esta API.

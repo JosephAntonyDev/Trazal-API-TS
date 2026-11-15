@@ -13,7 +13,9 @@
     "build": "node scripts/wrangler.mjs deploy --dry-run --outdir dist",
     "test:desktop": "node --import tsx scripts/test-desktop.ts",
     "migrate": "node --import tsx scripts/migrate.ts",
-    "deploy": "node scripts/wrangler.mjs deploy --config wrangler.production.jsonc"
+    "prepare:deploy": "node scripts/production-config.mjs",
+    "deploy": "npm run prepare:deploy && node scripts/wrangler.mjs deploy --config wrangler.production.jsonc",
+    "check": "npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
     "jose": "6.2.17",
