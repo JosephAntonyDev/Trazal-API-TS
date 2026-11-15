@@ -2,11 +2,13 @@
 
 El resultado será: push a `main` → Cloudflare instala dependencias → ejecuta las comprobaciones → despliega `trazal-api`. Si falla una comprobación, no se ejecuta el despliegue. El escritorio no se actualiza con este flujo.
 
+El [modelo local y de suscripción](MODELO-LOCAL-Y-NUBE.md) guarda solo datos estructurados. Al vencer la suscripción se conservará lo sincronizado y se bloquearán nuevas escrituras de obras; el control comercial todavía está pendiente de implementar. Este despliegue inicial es para pruebas técnicas.
+
 ## 1. PostgreSQL
 
 Para el piloto se puede usar Neon. Cloudflare Hyperdrive conecta PostgreSQL; no crea ni aloja la base. No se necesita D1, Firestore, KV o R2 para esta API.
 
-1. En [Neon](https://console.neon.tech/) crea el proyecto `trazal`, elige el plan disponible que prefieras y una región cercana a México. Conserva el nombre real de la base (puede ser `neondb`). Consulta límites del proveedor antes de activar un plan de pago.
+1. En [Neon](https://console.neon.tech/), la opción **Startup** del cuestionario corresponde a este proyecto. En la creación del proyecto usa `trazal`, plan **Free**, proveedor **AWS** y **US East (N. Virginia), us-east-1** como punto de partida; la latencia se medirá después. Conserva la versión estable predeterminada de PostgreSQL y el nombre real de la base (puede ser `neondb`). Neon Auth no es necesario porque ya usamos Firebase. El cuestionario de uso no sustituye la elección del plan.
 2. Abre **SQL Editor** con el propietario de la base. En una base nueva, ejecuta el contenido de [`migrations/001_sync.sql`](../migrations/001_sync.sql) poniendo `BEGIN;` antes y `COMMIT;` después. No lo ejecutes otra vez si ya existen las tablas; `SELECT * FROM schema_migrations;` debe mostrar versión 1.
 3. Para migraciones desde un equipo administrador, la alternativa es `npm run migrate` con `DATABASE_URL` en su entorno. Ese comando comprueba la versión y utiliza transacción/bloqueo. No se ejecuta automáticamente en cada despliegue ni se conecta a PostgreSQL en las pruebas de CI.
 4. Crea un usuario de ejecución separado. En SQL Editor, reemplaza la contraseña y el nombre real de la base antes de ejecutar:
@@ -22,7 +24,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON accounts, works, sync_requests TO trazal
 
 ## 2. Hyperdrive
 
-1. En Cloudflare: **Storage & databases → Postgres & MySQL (Hyperdrive) → Create configuration**.
+1. En Cloudflare: **Storage & databases → Postgres & MySQL (Hyperdrive) → Connect database** (en otras versiones del panel, **Create configuration**). Para la base existente en Neon usa esa opción; **Create PlanetScale database** crea una base con otro proveedor.
 2. Nombre: `trazal-postgres`. Usa la conexión directa del paso anterior; conserva TLS y los datos del proveedor.
 3. Desactiva **Query caching / Caché de consultas**. La sincronización necesita leer inmediatamente lo que acaba de guardar.
 4. Crea la configuración y copia su **ID** (32 caracteres). El ID no es la contraseña de PostgreSQL.
