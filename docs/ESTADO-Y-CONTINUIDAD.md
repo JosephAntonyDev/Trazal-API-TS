@@ -7,7 +7,7 @@ Actualizado el **15 de noviembre de 2026**. Punto de entrada para compañeros y 
 | Proyecto | Repositorio | Responsabilidad |
 | --- | --- | --- |
 | API | [Trazal-API-TS](https://github.com/JosephAntonyDev/Trazal-API-TS) | TypeScript, Worker, identidad verificada y sincronización PostgreSQL. Arquitectura hexagonal por módulos. |
-| Escritorio | [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app) | C# / WPF / .NET Framework 4.8, SQLite y cliente Firebase REST. Vista previa 0.6.3. |
+| Escritorio | [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app) | C# / WPF / .NET Framework 4.8, SQLite y cliente Firebase REST. Vista previa 0.6.4. |
 | Mockup | [Trazal-mockup](https://github.com/JosephAntonyDev/Trazal-mockup) | React / Vite para revisar flujos con el ingeniero. Cuenta/login/registro solo visuales, sin Firebase ni conexión al backend. |
 | Marca | [Trazal-kit](https://github.com/JosephAntonyDev/Trazal-kit) | Kit de marca; propuesta amarilla seleccionada. |
 
@@ -176,3 +176,9 @@ Escritorio añade **Mi cuenta → Acceso y seguridad → Enviar enlace para camb
 Por petición posterior, el mockup incluye login, registro, recuperación/cambio y cuenta/licencia **de ejemplo**; no crea usuarios, no llama a Firebase y no persiste credenciales. El acceso a obras continúa libre. La licencia y los estados de nube mostrados son propuestas visuales; cobro y autorización comercial permanecen pendientes.
 
 El cliente OAuth mostrado en las capturas sigue en `trazal-773ba-514820`. Hay que crear/obtener el cliente Desktop en **trazal-773ba** y descargar su JSON; no regenerar Firebase ni la API key. La coincidencia de nombres visibles no demuestra coincidencia de IDs. El importador local rechaza el proyecto distinto. Al recibir el JSON correcto, configurar y empaquetar; luego probar con una cuenta del equipo autorizada.
+
+## Google configurado y diseño adaptable (16/11/2026)
+
+**El pendiente del JSON correcto ya se resolvió.** Joseph creó el cliente OAuth Desktop en `trazal-773ba` desde la cuenta que administra Firebase. Se validó e importó a la configuración local de escritorio; nuevo cliente público `648308444976-b6mbfvqiqm5au5lbsojhu3eguadomb2n.apps.googleusercontent.com`. No se guardan su JSON ni secreto en los repositorios. Las notas anteriores describen el bloqueo histórico, no hay que volver a pedirle crear el cliente.
+
+Escritorio 0.6.4 empaqueta localmente esa configuración y mejora ventanas pequeñas, menús, modales y tablas. Mockup corrige anchura y organización del inicio, probado entre 320 y 1920 px. Permanece pendiente el login Google real con el usuario, correo real, sincronización autenticada y Windows 7. No se modificó el código de API ni el esquema de Neon para estos cambios.
