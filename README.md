@@ -1,5 +1,7 @@
 # Trazal-API-TS · 0.6.0
 
+Para trabajar con el equipo: [guía de contribución, comprobaciones y tareas](CONTRIBUTING.md).
+
 Backend TypeScript para Cloudflare Workers. PostgreSQL conserva documentos JSONB de obra con revisiones; SQLite sigue siendo la base de trabajo del escritorio. No requiere un servidor Node permanente. Este repositorio contiene la API independiente; el cliente C# / SQLite está en [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app). Desplegado en Cloudflare el 15 de noviembre de 2026: [estado público](https://trazal-api.trazaldev.workers.dev/health). Hyperdrive y Firebase están configurados; la lectura/escritura remota con sesión real sigue pendiente de prueba.
 
 ## Empezar aquí
@@ -69,7 +71,7 @@ El deploy genera la configuración de producción desde esos valores; ya no depe
 La generación conserva `main`, flags y cron. El ID del proyecto es público; la contraseña de PostgreSQL se guarda en Hyperdrive. `DATABASE_URL` es el fallback local, no debe ponerse en `vars` de producción. El escritorio no necesita CORS; al habilitar un cliente web será necesario extender la configuración con orígenes concretos.
 
 5. Iniciar sesión en Wrangler y ejecutar `npm run deploy` después de revisar el destino. Verificar `/health`, sesión Firebase real, PostgreSQL y límites de CPU antes de habilitar a un usuario.
-6. Configurar `apiKey`, `projectId=trazal-773ba` y `apiOrigin=https://trazal-api.trazaldev.workers.dev` en el cliente Trazal-app 0.6.3. El módulo de identidad de escritorio ya implementa login/registro/recuperación, renovación y persistencia opcional mediante Windows DPAPI; falta validarlo con el proyecto real. `CloudClient` recibe ID tokens en memoria. El Worker rechaza un correo sin confirmar con `403 email_unverified`. Registro y contraseñas van directamente a Firebase, nunca a esta API.
+6. Configurar `apiKey`, `projectId=trazal-773ba` y `apiOrigin=https://trazal-api.trazaldev.workers.dev` en el cliente Trazal-app 0.6.4. El módulo de identidad de escritorio ya implementa login/registro/recuperación, renovación y persistencia opcional mediante Windows DPAPI; falta validarlo con el proyecto real. `CloudClient` recibe ID tokens en memoria. El Worker rechaza un correo sin confirmar con `403 email_unverified`. Registro y contraseñas van directamente a Firebase, nunca a esta API.
 
 Para la verificación básica de ID tokens el Worker usa claves públicas, no necesita un JSON de cuenta de servicio. Todavía no se consulta revocación individual de Firebase: un token firmado es válido hasta expirar. `accounts.disabled` permite bloquear la sincronización de una cuenta de inmediato; la administración de ese campo es externa por ahora.
 

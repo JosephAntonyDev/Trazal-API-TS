@@ -1,6 +1,8 @@
 # Trazal · estado y guía para continuar
 
-Actualizado el **15 de noviembre de 2026**. Punto de entrada para compañeros y agentes que no tienen el historial del chat. Este documento registra el despliegue del piloto, no una aprobación para uso comercial.
+Actualizado el **16 de noviembre de 2026**. Punto de entrada para compañeros y agentes que no tienen el historial del chat. Este documento registra el despliegue del piloto, no una aprobación para uso comercial.
+
+Para incorporarse, repartir tareas y revisar PR: [Trabajo en equipo](TRABAJO-EN-EQUIPO.md).
 
 ## Repositorios y responsabilidades
 
@@ -115,7 +117,7 @@ Configurar builds de ramas de prueba para no desplegar contra esta base. La conf
 
    Esto no publica ni necesita Neon. Para trabajo diario usar una base de desarrollo separada con `.dev.vars` a partir de `.env.example`; no usar la rama `production` para tests destructivos.
 3. Clonar Trazal-app y seguir sus requisitos WPF/.NET 4.8. Ejecutar `./build.ps1 -Test -Package` en PowerShell desde el repositorio de escritorio.
-4. Seguir [Firebase y cuentas del escritorio](https://github.com/JosephAntonyDev/Trazal-app/blob/main/docs/FIREBASE-Y-CUENTAS.md). Configurar localmente `authsettings.json`; el origen es `https://trazal-api.trazaldev.workers.dev`, sin `/health`, `/v1` ni barra final. Reiniciar la app. El paquete local 0.6.3 ya se prepara con ese origen; los paquetes anteriores no cambian. `configure-auth.ps1` permite preparar el archivo e importar OAuth con validación de proyecto.
+4. Seguir [Firebase y cuentas del escritorio](https://github.com/JosephAntonyDev/Trazal-app/blob/main/docs/FIREBASE-Y-CUENTAS.md). Configurar localmente `authsettings.json`; el origen es `https://trazal-api.trazaldev.workers.dev`, sin `/health`, `/v1` ni barra final. Reiniciar la app. El paquete local 0.6.4 ya se prepara con ese origen; los paquetes anteriores no cambian. `configure-auth.ps1` permite preparar el archivo e importar OAuth con validación de proyecto.
 5. Leer el [modelo local/nube](MODELO-LOCAL-Y-NUBE.md) antes de implementar suscripciones o ampliar el documento de obra. El sistema comercial aún no está implementado.
 
 Los compañeros que solo revisan UX pueden usar el mockup sin cuentas. No conectar ese repositorio a Firebase por accidente.
@@ -130,7 +132,7 @@ Los compañeros que solo revisan UX pueden usar el mockup sin cuentas. No conect
 6. Probar un cambio en cada copia con la misma revisión remota: debe detectarse conflicto y conservarse cada copia. No forzar sobrescrituras. La resolución visual está pendiente.
 7. Registrar fecha, versiones, resultados, latencia, CPU, errores y consumo; no afirmar sincronización validada hasta completar subida y descarga reales.
 
-Google tiene un pendiente adicional: el JSON proporcionado anteriormente correspondía a `trazal-773ba-514820`, diferente del proyecto Firebase. No se aplicó. Crear/obtener un cliente OAuth **Desktop app** dentro de `trazal-773ba`, configurarlo localmente y probar el retorno por navegador. No documentar ni subir su secreto.
+Google: el cliente OAuth Desktop correcto de `trazal-773ba` ya fue recibido e importado el 16/11. Falta probar el acceso real y el retorno por navegador; no volver a generar el JSON. Un clon nuevo necesita su configuración local. No documentar ni subir el secreto.
 
 ## Diagnóstico rápido
 
@@ -163,11 +165,11 @@ Para cambios de código, trabajar en una rama, ejecutar `npm run check`, revisar
 
 Un despliegue de código no modifica el esquema. Antes de una migración futura, preparar recuperación y verificar compatibilidad con la versión anterior del Worker. Volver a una versión previa de código no revierte PostgreSQL ni SQLite. Todavía no se ha ensayado la recuperación operativa de la base remota; no asumir que la sincronización reemplaza los respaldos.
 
-## Avance de escritorio posterior al despliegue (15/11/2026)
+## Historial: avance de escritorio posterior al despliegue (15/11/2026)
 
 La vista previa 0.6.2 prepara el origen publicado en la configuración local, incorpora **Comprobar conexión**, muestra causas concretas cuando la sincronización no está disponible y exige que el UID devuelto por el backend coincida con la sesión antes de enviar obras. Los errores de red mantienen los datos locales y no exponen excepciones internas en pantalla.
 
-Se aprobaron 104 pruebas de escritorio y pruebas adicionales del importador `configure-auth.ps1` (proyecto OAuth correcto, cliente Desktop, HTTPS y preservación del archivo ante errores). Se revisó el renderizado de la pantalla de sincronización en claro y oscuro. Las pruebas OAuth usan un servidor loopback y respuestas de prueba; no demuestran Google real ni lectura/escritura en Neon. El JSON OAuth del proyecto correcto sigue pendiente. No se añadieron endpoints ni cambió el contrato del backend para este avance.
+Se aprobaron 104 pruebas de escritorio y pruebas adicionales del importador `configure-auth.ps1` (proyecto OAuth correcto, cliente Desktop, HTTPS y preservación del archivo ante errores). Se revisó el renderizado de la pantalla de sincronización en claro y oscuro. Las pruebas OAuth usan un servidor loopback y respuestas de prueba; no demuestran Google real ni lectura/escritura en Neon. En esa fecha faltaba el JSON correcto; se recibió el 16/11. No se añadieron endpoints ni cambió el contrato del backend para este avance.
 
 ## Continuidad: cuenta y contraseña (15/11/2026, escritorio 0.6.3)
 
@@ -175,7 +177,7 @@ Escritorio añade **Mi cuenta → Acceso y seguridad → Enviar enlace para camb
 
 Por petición posterior, el mockup incluye login, registro, recuperación/cambio y cuenta/licencia **de ejemplo**; no crea usuarios, no llama a Firebase y no persiste credenciales. El acceso a obras continúa libre. La licencia y los estados de nube mostrados son propuestas visuales; cobro y autorización comercial permanecen pendientes.
 
-El cliente OAuth mostrado en las capturas sigue en `trazal-773ba-514820`. Hay que crear/obtener el cliente Desktop en **trazal-773ba** y descargar su JSON; no regenerar Firebase ni la API key. La coincidencia de nombres visibles no demuestra coincidencia de IDs. El importador local rechaza el proyecto distinto. Al recibir el JSON correcto, configurar y empaquetar; luego probar con una cuenta del equipo autorizada.
+En las capturas del 15/11 el cliente OAuth pertenecía a `trazal-773ba-514820`. Ese bloqueo se resolvió el 16/11 con el cliente Desktop de **trazal-773ba**; no regenerar Firebase ni la API key. La coincidencia de nombres visibles no demuestra coincidencia de IDs. El importador local rechaza el proyecto distinto. El cliente correcto ya quedó configurado y empaquetado localmente; falta probar con una cuenta del equipo autorizada.
 
 ## Google configurado y diseño adaptable (16/11/2026)
 
