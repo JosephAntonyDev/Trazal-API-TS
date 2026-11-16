@@ -7,7 +7,7 @@ Actualizado el **15 de noviembre de 2026**. Punto de entrada para compañeros y 
 | Proyecto | Repositorio | Responsabilidad |
 | --- | --- | --- |
 | API | [Trazal-API-TS](https://github.com/JosephAntonyDev/Trazal-API-TS) | TypeScript, Worker, identidad verificada y sincronización PostgreSQL. Arquitectura hexagonal por módulos. |
-| Escritorio | [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app) | C# / WPF / .NET Framework 4.8, SQLite y cliente Firebase REST. Vista previa 0.6.1. |
+| Escritorio | [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app) | C# / WPF / .NET Framework 4.8, SQLite y cliente Firebase REST. Vista previa 0.6.2. |
 | Mockup | [Trazal-mockup](https://github.com/JosephAntonyDev/Trazal-mockup) | React / Vite para revisar flujos con el ingeniero. Sin login ni conexión al backend por decisión del producto. |
 | Marca | [Trazal-kit](https://github.com/JosephAntonyDev/Trazal-kit) | Kit de marca; propuesta amarilla seleccionada. |
 
@@ -115,7 +115,7 @@ Configurar builds de ramas de prueba para no desplegar contra esta base. La conf
 
    Esto no publica ni necesita Neon. Para trabajo diario usar una base de desarrollo separada con `.dev.vars` a partir de `.env.example`; no usar la rama `production` para tests destructivos.
 3. Clonar Trazal-app y seguir sus requisitos WPF/.NET 4.8. Ejecutar `./build.ps1 -Test -Package` en PowerShell desde el repositorio de escritorio.
-4. Seguir [Firebase y cuentas del escritorio](https://github.com/JosephAntonyDev/Trazal-app/blob/main/docs/FIREBASE-Y-CUENTAS.md). Configurar localmente `authsettings.json`; el origen es `https://trazal-api.trazaldev.workers.dev`, sin `/health`, `/v1` ni barra final. Reiniciar la app. La documentación no modifica automáticamente los paquetes ya generados.
+4. Seguir [Firebase y cuentas del escritorio](https://github.com/JosephAntonyDev/Trazal-app/blob/main/docs/FIREBASE-Y-CUENTAS.md). Configurar localmente `authsettings.json`; el origen es `https://trazal-api.trazaldev.workers.dev`, sin `/health`, `/v1` ni barra final. Reiniciar la app. El paquete local 0.6.2 ya se prepara con ese origen; los paquetes anteriores no cambian. `configure-auth.ps1` permite preparar el archivo e importar OAuth con validación de proyecto.
 5. Leer el [modelo local/nube](MODELO-LOCAL-Y-NUBE.md) antes de implementar suscripciones o ampliar el documento de obra. El sistema comercial aún no está implementado.
 
 Los compañeros que solo revisan UX pueden usar el mockup sin cuentas. No conectar ese repositorio a Firebase por accidente.
@@ -124,7 +124,7 @@ Los compañeros que solo revisan UX pueden usar el mockup sin cuentas. No conect
 
 1. Configurar el escritorio para Firebase `trazal-773ba` y el origen publicado. Primero se puede probar correo/contraseña sin esperar el cliente OAuth de Google.
 2. Crear una cuenta de prueba desde Mi cuenta, recibir y confirmar correo, y comprobar la sesión. No escribir tokens en logs, capturas ni documentación.
-3. Dentro del espacio SQLite de esa cuenta, crear una obra ficticia identificada como prueba; agregar concepto, programa, avance y gasto según las validaciones de la aplicación. Las obras del espacio local original no se trasladan automáticamente.
+3. En **Sincronización**, usar primero **Comprobar conexión** (0.6.2): valida `/v1/me` y el UID del espacio, sin enviar/descargar obras ni vincular la SQLite. Puede crear la cuenta técnica en el servidor. Después, dentro del espacio SQLite de esa cuenta, crear una obra ficticia identificada como prueba; agregar concepto, programa, avance y gasto según las validaciones de la aplicación. Las obras del espacio local original no se trasladan automáticamente.
 4. Sincronizar y verificar el resultado. Revisar con el administrador que la cuenta y obra corresponden al UID esperado en Neon, sin publicar documentos ni datos personales.
 5. En un segundo usuario de Windows/equipo con datos separados, entrar con la misma cuenta, sincronizar y comprobar cantidades, programa, avance y gasto descargados. No borrar la SQLite original para simular un equipo vacío.
 6. Probar un cambio en cada copia con la misma revisión remota: debe detectarse conflicto y conservarse cada copia. No forzar sobrescrituras. La resolución visual está pendiente.
@@ -162,3 +162,9 @@ Ante cada cambio registrar fecha, versión/commit desplegado, entorno y evidenci
 Para cambios de código, trabajar en una rama, ejecutar `npm run check`, revisar el diff y llevar el cambio aprobado a `main`. En **Workers → trazal-api → Deployments**, comprobar que el commit coincide con GitHub, que el build pasó y que el despliegue real muestra `env.HYPERDRIVE` y `env.FIREBASE_PROJECT_ID`. Volver a comprobar `/health` y, si cambió autenticación o datos, el flujo real de prueba.
 
 Un despliegue de código no modifica el esquema. Antes de una migración futura, preparar recuperación y verificar compatibilidad con la versión anterior del Worker. Volver a una versión previa de código no revierte PostgreSQL ni SQLite. Todavía no se ha ensayado la recuperación operativa de la base remota; no asumir que la sincronización reemplaza los respaldos.
+
+## Avance de escritorio posterior al despliegue (15/11/2026)
+
+La vista previa 0.6.2 prepara el origen publicado en la configuración local, incorpora **Comprobar conexión**, muestra causas concretas cuando la sincronización no está disponible y exige que el UID devuelto por el backend coincida con la sesión antes de enviar obras. Los errores de red mantienen los datos locales y no exponen excepciones internas en pantalla.
+
+Se aprobaron 104 pruebas de escritorio y pruebas adicionales del importador `configure-auth.ps1` (proyecto OAuth correcto, cliente Desktop, HTTPS y preservación del archivo ante errores). Se revisó el renderizado de la pantalla de sincronización en claro y oscuro. Las pruebas OAuth usan un servidor loopback y respuestas de prueba; no demuestran Google real ni lectura/escritura en Neon. El JSON OAuth del proyecto correcto sigue pendiente. No se añadieron endpoints ni cambió el contrato del backend para este avance.
