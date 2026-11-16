@@ -9,7 +9,7 @@ Para incorporarse, repartir tareas y revisar PR: [Trabajo en equipo](TRABAJO-EN-
 | Proyecto | Repositorio | Responsabilidad |
 | --- | --- | --- |
 | API | [Trazal-API-TS](https://github.com/JosephAntonyDev/Trazal-API-TS) | TypeScript, Worker, identidad verificada y sincronización PostgreSQL. Arquitectura hexagonal por módulos. |
-| Escritorio | [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app) | C# / WPF / .NET Framework 4.8, SQLite y cliente Firebase REST. Vista previa 0.6.4. |
+| Escritorio | [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app) | C# / WPF / .NET Framework 4.8, SQLite y cliente Firebase REST. Vista previa 0.6.5. |
 | Mockup | [Trazal-mockup](https://github.com/JosephAntonyDev/Trazal-mockup) | React / Vite para revisar flujos con el ingeniero. Cuenta/login/registro solo visuales, sin Firebase ni conexión al backend. |
 | Marca | [Trazal-kit](https://github.com/JosephAntonyDev/Trazal-kit) | Kit de marca; propuesta amarilla seleccionada. |
 
@@ -184,3 +184,8 @@ En las capturas del 15/11 el cliente OAuth pertenecía a `trazal-773ba-514820`. 
 **El pendiente del JSON correcto ya se resolvió.** Joseph creó el cliente OAuth Desktop en `trazal-773ba` desde la cuenta que administra Firebase. Se validó e importó a la configuración local de escritorio; nuevo cliente público `648308444976-b6mbfvqiqm5au5lbsojhu3eguadomb2n.apps.googleusercontent.com`. No se guardan su JSON ni secreto en los repositorios. Las notas anteriores describen el bloqueo histórico, no hay que volver a pedirle crear el cliente.
 
 Escritorio 0.6.4 empaqueta localmente esa configuración y mejora ventanas pequeñas, menús, modales y tablas. Mockup corrige anchura y organización del inicio, probado entre 320 y 1920 px. Permanece pendiente el login Google real con el usuario, correo real, sincronización autenticada y Windows 7. No se modificó el código de API ni el esquema de Neon para estos cambios.
+
+
+## Copia local a cuenta (16/11/2026, escritorio 0.6.5)
+
+Implementada en el escritorio: desde Mi cuenta o Sincronización, selección de obras del espacio original, confirmación del correo destino, respaldo previo y lote SQLite atómico. Conserva IDs, originales y programa aprobado; omite obras ya presentes, no copia perfil ni estado de nube, y no envía datos al servidor. 116 pruebas de escritorio aprobadas; la prueba real de sesión y sincronización posterior sigue pendiente. No cambia el contrato API, el esquema PostgreSQL ni el esquema SQLite. La resolución visual de conflictos continúa pendiente.
