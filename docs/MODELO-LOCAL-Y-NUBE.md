@@ -2,6 +2,8 @@
 
 Decisión acordada con el usuario el 15 de noviembre de 2026. Este documento define el comportamiento objetivo; no significa que ya exista cobro o autorización por suscripción en la API.
 
+Infraestructura desplegada y evidencia: [Estado y continuidad](ESTADO-Y-CONTINUIDAD.md). El despliegue del 15/11/2026 no habilita ni implementa cobros.
+
 ## Datos y almacenamiento
 
 - SQLite conserva el trabajo del usuario en su computadora, con o sin suscripción de nube, sujeto a su licencia de escritorio.

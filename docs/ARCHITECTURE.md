@@ -1,5 +1,7 @@
 # Arquitectura hexagonal por módulos
 
+Estado operativo, destinos y pruebas pendientes: [Estado y continuidad](ESTADO-Y-CONTINUIDAD.md). Reglas comerciales objetivo: [modelo local/nube](MODELO-LOCAL-Y-NUBE.md).
+
 La composición se realiza únicamente en `src/worker.ts`. El dominio y la aplicación no importan HTTP, PostgreSQL, jose ni adaptadores; una prueba comprueba esta dirección de dependencias.
 
 ```text

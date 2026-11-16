@@ -1,6 +1,10 @@
 # Trazal-API-TS · 0.6.0
 
-Backend TypeScript para Cloudflare Workers. PostgreSQL conserva documentos JSONB de obra con revisiones; SQLite sigue siendo la base de trabajo del escritorio. No requiere un servidor Node permanente. Este repositorio contiene la API independiente; el cliente C# / SQLite está en [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app). No se ha desplegado ni conectado a cuentas reales.
+Backend TypeScript para Cloudflare Workers. PostgreSQL conserva documentos JSONB de obra con revisiones; SQLite sigue siendo la base de trabajo del escritorio. No requiere un servidor Node permanente. Este repositorio contiene la API independiente; el cliente C# / SQLite está en [Trazal-app](https://github.com/JosephAntonyDev/Trazal-app). Desplegado en Cloudflare el 15 de noviembre de 2026: [estado público](https://trazal-api.trazaldev.workers.dev/health). Hyperdrive y Firebase están configurados; la lectura/escritura remota con sesión real sigue pendiente de prueba.
+
+## Empezar aquí
+
+Lee [Estado y continuidad](docs/ESTADO-Y-CONTINUIDAD.md): recursos actuales, procedimiento realizado, variables de build/runtime, incorporación de compañeros, evidencia y próximos pasos. Para reproducir la instalación usa [Cloudflare y GitHub](docs/CLOUDFLARE-GITHUB.md); para las reglas comerciales, [modelo local y nube](docs/MODELO-LOCAL-Y-NUBE.md).
 
 ## Qué funciona
 
@@ -65,7 +69,7 @@ El deploy genera la configuración de producción desde esos valores; ya no depe
 La generación conserva `main`, flags y cron. El ID del proyecto es público; la contraseña de PostgreSQL se guarda en Hyperdrive. `DATABASE_URL` es el fallback local, no debe ponerse en `vars` de producción. El escritorio no necesita CORS; al habilitar un cliente web será necesario extender la configuración con orígenes concretos.
 
 5. Iniciar sesión en Wrangler y ejecutar `npm run deploy` después de revisar el destino. Verificar `/health`, sesión Firebase real, PostgreSQL y límites de CPU antes de habilitar a un usuario.
-6. Configurar `apiKey`, `projectId` y `apiOrigin` en el cliente Trazal-app 0.6.0. El módulo de identidad de escritorio ya implementa login/registro/recuperación, renovación y persistencia opcional mediante Windows DPAPI; falta validarlo con el proyecto real. `CloudClient` recibe ID tokens en memoria. El Worker rechaza un correo sin confirmar con `403 email_unverified`. Registro y contraseñas van directamente a Firebase, nunca a esta API.
+6. Configurar `apiKey`, `projectId=trazal-773ba` y `apiOrigin=https://trazal-api.trazaldev.workers.dev` en el cliente Trazal-app 0.6.1. El módulo de identidad de escritorio ya implementa login/registro/recuperación, renovación y persistencia opcional mediante Windows DPAPI; falta validarlo con el proyecto real. `CloudClient` recibe ID tokens en memoria. El Worker rechaza un correo sin confirmar con `403 email_unverified`. Registro y contraseñas van directamente a Firebase, nunca a esta API.
 
 Para la verificación básica de ID tokens el Worker usa claves públicas, no necesita un JSON de cuenta de servicio. Todavía no se consulta revocación individual de Firebase: un token firmado es válido hasta expirar. `accounts.disabled` permite bloquear la sincronización de una cuenta de inmediato; la administración de ese campo es externa por ahora.
 
@@ -91,6 +95,6 @@ Las revisiones/cursor son cadenas enteras para conservar precisión. El ID local
 - 120 operaciones exitosas por minuto/cuenta; respuesta 429 con `Retry-After`. No es una protección global contra abuso del endpoint. Revisar métricas reales y reglas de acceso antes de abrir registro público.
 - Actualmente cada usuario tiene un espacio propio; no hay organizaciones, permisos entre compañeros, invitaciones, eliminaciones remotas ni resolución visual de conflictos. Cuando hay conflicto, una copia queda en cada lado y la obra deja de sincronizarse hasta implementar/revisar la resolución.
 - Un espacio SQLite se vincula a un UID y un servidor. Cambiar de cuenta exige un espacio separado; se rechaza reutilizar la misma cola con otra identidad.
-- Workers Free tiene actualmente 100,000 peticiones/día y 10 ms de CPU por petición; Hyperdrive Free tiene 100,000 consultas/día. Autenticación, JSON y validación deben medirse en Cloudflare: las pruebas locales **no certifican** esos 10 ms. PostgreSQL tiene costos y límites propios. No se habilitaron planes de pago ni servicios remotos durante este desarrollo.
+- Workers Free tiene actualmente 100,000 peticiones/día y 10 ms de CPU por petición; Hyperdrive Free tiene 100,000 consultas/día. Autenticación, JSON y validación deben medirse en Cloudflare: las pruebas locales **no certifican** esos 10 ms. PostgreSQL tiene costos y límites propios. Se configuraron servicios remotos para el piloto el 15/11/2026; no se contrataron planes de pago en ese procedimiento.
 
 Fuentes: [Workers Free](https://developers.cloudflare.com/workers/platform/limits/), [Hyperdrive](https://developers.cloudflare.com/hyperdrive/platform/pricing/), [Postgres.js en Workers](https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/postgres-js/), [Firebase ID tokens](https://firebase.google.com/docs/auth/admin/verify-id-tokens).
